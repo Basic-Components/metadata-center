@@ -1,19 +1,40 @@
 # schema_manager
 
-## Project setup
-```
-npm install
++ version: 0.0.1
++ status: dev
++ author: hsz
++ email: 
+
+## Description
+
+simple tools
+
+keywords:['tools']
+
+## Feature
+
++ Feature1
++ Feature2
+
+## Example
+
+```python
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Install
 
-### Compiles and minifies for production
-```
-npm run build
-```
+`python -m pip install schema_manager`
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Documentation
+
+Documentation on github page <>
+
+## TODO
+
++ todo1
++ todo2
+
+## Limitations
+
++ limit1
++ limit2
