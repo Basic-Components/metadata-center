@@ -5,6 +5,7 @@ import stat from 'koa-static'
 import koaBody from 'koa-body'
 import Pino from 'koa-pino-logger'
 import cors from 'koa2-cors'
+import error from 'koa-json-error'
 //import { updateMap } from "./utils"
 
 class Application {
@@ -31,6 +32,7 @@ class Application {
       origin: this.config.get("ORIGIN"),
       credentials: true
     }))
+    this.app.use(error())
     this.app.use(Pino({ level: this.config.get("LOG_LEVEL") }))
     this.app.use(koaBody())
     this.server = require('http').createServer(this.app.callback())

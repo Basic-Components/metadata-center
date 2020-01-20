@@ -4,6 +4,7 @@ import {
     updateMap
 } from "./utils"
 export const DEFAULT_CONFIG = {
+    "SERVICE_NAME":"service_manager",
     "STATIC_PATH": "static",
     "PORT": 5000,
     "HOST": "0.0.0.0",

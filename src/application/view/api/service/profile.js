@@ -1,29 +1,33 @@
-import connection from '../../../model'
+import { getServiceByid } from '../../utils'
+/**
+ * 服务详情接口
+ */
 export default {
     async get(ctx) {
-        let serviceId = parseInt(ctx.params.serviceId)
-        let service = await connection.get_table("Service").findByPk(serviceId)
+        let service_name = ctx.params.serviceId
+        let service = await getServiceByid(service_name)
 
-        let self = Object.assign(service.dataValues, { "source": ctx.url })
-        let serviceSchemas = await service.getSchemas()
-        let related = serviceSchemas.map((i) => {
-            i = i.dataValues
-            let id = i.id
-            let source = ctx.url.endsWith("/") ? `${ctx.url}schema/${id}` : `${ctx.url}/schema/${id}`
-            let task = i.task
-            let version = i.version
-            let status = i.status
-            return {
-                id,
-                source,
-                task,
-                version,
-                status
+        if (service) {
+            let self = {
+                src: ctx.href,
+                url: ctx.url,
+                description: `提供${service_name}服务资源`
             }
-        })
-    ctx.body = JSON.stringify({
-        self,
-        related
-    })
-}
+            Object.assign(self, { attribute: service, method: { GET:, PUT:, DELETE:} })
+            let related = [
+                {
+                    "source": ctx.url.endsWith("/") ? ctx.url + 'schema' : ctx.url + '/schema',
+                    "description": "获取本服务的数据模型资源",
+                    "method": "GET"
+                }
+            ]
+            ctx.body = JSON.stringify({
+                self,
+                related
+            })
+        } else {
+            ctx.throw(404)
+        }
+    }
+
 }

@@ -6,9 +6,9 @@ import Profile from './profile'
 
 let Source = new Router()
 Source.get('/', List.get)
-//Source.post('/', ServiceList.post)
+//Source.post('/', List.post)
 Source.get('/:serviceId', Profile.get)
-//Source.post('/:service', ServiceProfile.post)
+//Source.post('/:service', Profile.post)
 Source.use('/:serviceId/schema', schemaSource.routes(), schemaSource.allowedMethods())
 
 export default Source

@@ -1,5 +1,5 @@
 {
-    "project-name": "schema_manager",
+    "project-name": "service_manager",
     "project-language": "Javascript",
     "env": "node",
     "project-type": "application",
