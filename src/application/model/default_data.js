@@ -271,7 +271,7 @@ const defaultSchemas = [
                             },
                             "minProperties": 1,
                             "maxProperties": 1,
-                            "additionalProperties": False
+                            "additionalProperties": false
                         }
                     ]
                 }
