@@ -22,7 +22,7 @@ export default {
                 }
             })
         }
-        let result = await getService({}, "name", "description", "tags", "status")
+        let result = await getService({}, "name", "description", "tags", )
         let related = result.map(
             (data) => {
                 let name = data.name
@@ -45,5 +45,13 @@ export default {
             self,
             related
         })
+    },
+    //todo
+    async post(ctx){
+        ctx.throw(404)
+    },
+    //todo
+    async delete(ctx){
+        ctx.throw(404)
     }
 }

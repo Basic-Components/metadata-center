@@ -4,15 +4,16 @@ import { getServiceByid } from '../../utils'
  */
 export default {
     async get(ctx) {
-        let service_name = ctx.params.service_name
+        let service_name = ctx.params.serviceId
         let service = await getServiceByid(service_name)
+
         if (service) {
             let self = {
                 src: ctx.href,
                 url: ctx.url,
                 description: `提供${service_name}服务资源`
             }
-            Object.assign(self, { attribute: service })
+            Object.assign(self, { attribute: service, method: { GET:, PUT:, DELETE:} })
             let related = [
                 {
                     "source": ctx.url.endsWith("/") ? ctx.url + 'schema' : ctx.url + '/schema',
@@ -27,17 +28,6 @@ export default {
         } else {
             ctx.throw(404)
         }
-    },
-    //todo
-    async post(ctx){
-        ctx.throw(404)
-    },
-    //todo
-    async put(ctx){
-        ctx.throw(404)
-    },
-    //todo
-    async delete(ctx){
-        ctx.throw(404)
     }
+
 }

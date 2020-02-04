@@ -44,6 +44,12 @@ export default {
         } else {
             ctx.throw(404)
         }
+    },
+    //todo
+    async postMessage(ctx) {
+        ctx.body = JSON.stringify({
+            schema_list: "ok"
+        })
     }
 }
 

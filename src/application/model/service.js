@@ -5,7 +5,7 @@ const ServiceModel = {
     schema: {
         name: {
             type: Sequelize.STRING,
-            primaryKey: true,
+            allowNull: false,
             comment: '服务名'
         },
         description: {
@@ -13,14 +13,18 @@ const ServiceModel = {
             allowNull: false,
             comment: '服务的说明文字'
         },
-        tags: {
-            type: Sequelize.ARRAY(Sequelize.STRING(100)),
-            comment: '服务的标签'
+        tag: {
+            type: Sequelize.STRING(100),
+            comment: '服务的标记,用于区分服务的版本和状态,类比docker image的tag'
         },
-        status: {
-            type: Sequelize.ENUM('test','pre', 'online', 'deprecated'),
+        labels: {
+            type: Sequelize.ARRAY(Sequelize.STRING(100)),
+            comment: '服务的标签,用于搜索查询'
+        },
+        usage_state: {
+            type: Sequelize.ENUM("developing", "using", "deprecated"),
             allowNull: false,
-            comment: "服务的状态,包括测试,预上线,上线和过期四种状态"
+            comment: '服务的状态,用于搜索查询'
         },
         createdAt: Sequelize.DATE,
         updatedAt: Sequelize.DATE
@@ -28,7 +32,13 @@ const ServiceModel = {
     meta: {
         tableName: 'service',
         comment: "服务数据,所谓服务指针对某一特定业务创建的一类程序.",
-        underscored: true
+        underscored: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['name', 'tag']
+            }
+        ]
     }
 }
 

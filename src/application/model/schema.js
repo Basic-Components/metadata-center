@@ -3,29 +3,33 @@ import Sequelize from "sequelize"
 const SchemaModel = {
     name: "Schema",
     schema: {
-        version: {
-            type: Sequelize.STRING,
-            allowNull: false,
-            comment: '数据模式版本号'
-        },
         task: {
             type: Sequelize.STRING,
             allowNull: false,
             comment: '数据模式针对的任务'
         },
-        tags:{
+        version: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            comment: '数据模式版本号'
+        },
+        env: {
+            type: Sequelize.ARRAY(Sequelize.ENUM('dev', 'test', 'produce', 'release')),
+            allowNull: false,
+            comment: "数据模式服务的发布环境,分为dev,test,produce,release'"
+        },
+        direction:{
+            type: Sequelize.ENUM('query', 'response', 'receive', 'send','ref'),
+            comment: "数据模型的对应的方向,只有'query', 'response', 'receive', 'send','ref'"
+        },
+        labels:{
             type: Sequelize.ARRAY(Sequelize.STRING(100)),
-            comment: '数据模型的标签'
+            comment: "数据模型的标签,用于搜索"
         },
         description: {
             type: Sequelize.TEXT,
             allowNull: false,
             comment: '数据模式针对任务的描述'
-        },
-        status: {
-            type: Sequelize.ENUM('dev', 'test', 'produce', 'release'),
-            allowNull: false,
-            comment: "数据模式的发布状态,分为dev,test,produce,release'"
         },
         schema: {
             type: Sequelize.JSONB,
@@ -37,7 +41,13 @@ const SchemaModel = {
     meta: {
         tableName: 'schema',
         comment: "服务数据模式管理",
-        underscored: true
+        underscored: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['task','direction','version']
+            }
+        ]
     }
 }
 

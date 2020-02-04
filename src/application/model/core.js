@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize'
-import { defaultService, defaultSchemas } from './default_data'
+import { selfService, selfSchemas } from './default_data'
 
 
 const Op = Sequelize.Op;
@@ -139,10 +139,10 @@ export class Connection {
         if (Service && Schema) {
             let rows = await Schema.findAll()
             if (rows.length === 0) {
-                let service = await Service.create(defaultService)
+                let service = await Service.create(selfService)
                 let schemas = []
-                for (let defaultSchema of defaultSchemas) {
-                    let schema = await Schema.create(defaultSchema)
+                for (let selfSchema of selfSchemas) {
+                    let schema = await Schema.create(selfSchema)
                     schemas.push(schema)
                 }
                 await service.setSchemas(schemas)

@@ -1,283 +1,144 @@
-// const defaultService = {
-//     name: "test",
-//     description: "一个测试",
-//     tags: ["test"],
-//     status: "test"
-// }
-
-
-const defaultSchemas = [
-    {
-        task: "card",
-        version: "0.0.1",
-        status: "dev",
-        description: "card",
-        schema: {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "description": "A representation of a person, company, organization, or place",
-            "type": "object",
-            "required": ["familyName", "givenName"],
-            "properties": {
-                "fn": {
-                    "description": "Formatted Name",
-                    "type": "string"
-                },
-                "familyName": {
-                    "type": "string"
-                },
-                "givenName": {
-                    "type": "string"
-                },
-                "additionalName": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "honorificPrefix": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "honorificSuffix": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "nickname": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "tel": {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "adr": { "$ref": "http://example.com/address.schema.json" },
-                "geo": { "$ref": "http://example.com/geographical-location.schema.json" },
-                "tz": {
-                    "type": "string"
-                },
-                "photo": {
-                    "type": "string"
-                },
-                "logo": {
-                    "type": "string"
-                },
-                "sound": {
-                    "type": "string"
-                },
-                "bday": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "org": {
-                    "type": "object",
-                    "properties": {
-                        "organizationName": {
-                            "type": "string"
-                        },
-                        "organizationUnit": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        }
-    },
-    {
-        task: "address",
-        version: "0.0.1",
-        status: "dev",
-        description: "address",
-        schema: {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "description": "An address similar to http://microformats.org/wiki/h-card",
-            "type": "object",
-            "properties": {
-                "post-office-box": {
-                    "type": "string"
-                },
-                "extended-address": {
-                    "type": "string"
-                },
-                "street-address": {
-                    "type": "string"
-                },
-                "locality": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "string"
-                },
-                "postal-code": {
-                    "type": "string"
-                },
-                "country-name": {
-                    "type": "string"
-                }
-            },
-            "required": ["locality", "region", "country-name"],
-            "dependencies": {
-                "post-office-box": ["street-address"],
-                "extended-address": ["street-address"]
-            }
-        }
-    },
-    {
-        task: "geographical",
-        version: "0.0.1",
-        status: "dev",
-        description: "geographical",
-        schema: {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "Longitude and Latitude Values",
-            "description": "A geographical coordinate.",
-            "required": ["latitude", "longitude"],
-            "type": "object",
-            "properties": {
-                "latitude": {
-                    "type": "number",
-                    "minimum": -90,
-                    "maximum": 90
-                },
-                "longitude": {
-                    "type": "number",
-                    "minimum": -180,
-                    "maximum": 180
-                }
-            }
-        }
-    }
-]
-
-
-const defaultService = {
+const selfService = {
     name: "service_manager",
+    tag: "test-0.0.1",
     description: "管理服务的服务,包含服务数据模型,服务配置分发等",
-    tags: ["内部服务", "管理工具"],
-    status: "test"
+    labels: ["内部服务", "管理工具"]
 }
 
-const defaultSchemas = [
+const selfSchemas = [
     {
-        task: "query-api-service-list-get",
+        task: "operation-array-string",
         version: "0.0.1",
-        status: "dev",
-        description: "请求service资源的api支持的URL参数",
-        tags: ["query", "url_query"],
+        env: ['dev', 'test', 'produce', 'release'],
+        description: "请求资源的api查找符合条件的array类型数据的可选操作",
+        direction: "ref",
+        labels: ["api", "operation"],
         schema: {
             "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "operation-array-string",
             "type": "object",
             "properties": {
-                "tags": {
-                    "description": "服务的标签",
-                    "oneOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "$contains": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "minItems": 1
-                                },
-                                "$contained": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "minItems": 1
-                                },
-
-                                "$overlap": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "minItems": 1
-                                }
-                            },
-                            "minProperties": 1,
-                            "maxProperties": 1,
-                            "additionalProperties": false
-                        }
-                    ]
+                "$contains": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1
                 },
-                "status": {
-                    "description": "服务的状态",
-                    "oneOf": [
-                        {
-                            "type": "string",
-                            "enum": ['test', 'pre', 'online', 'deprecated']
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "$in": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string",
-                                        "enum": ['test', 'pre', 'online', 'deprecated']
-                                    },
-                                    "minItems": 1
-                                },
-                                "$notIn": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string",
-                                        "enum": ['test', 'pre', 'online', 'deprecated']
-                                    },
-                                    "minItems": 1
-                                },
-                                "$not": {
-                                    "type": "string",
-                                    "items": {
-                                        "type": "string",
-                                        "enum": ['test', 'pre', 'online', 'deprecated']
-                                    },
-                                    "minItems": 1
-                                }
-                            },
-                            "minProperties": 1,
-                            "maxProperties": 1,
-                            "additionalProperties": false
-                        }
-                    ]
+                "$contained": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1
+                },
+
+                "$overlap": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1
+                }
+            },
+            "minProperties": 1,
+            "maxProperties": 1,
+            "additionalProperties": false
+        }
+    },
+    {
+        task: "operation-enum-env",
+        version: "0.0.1",
+        env: ['dev', 'test', 'produce', 'release'],
+        description: "请求资源的api查找符合条件的array类型数据的可选操作",
+        direction: "ref",
+        labels: ["api", "operation"],
+        schema: {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "operation-enum-env",
+            "type": "object",
+            "properties": {
+                "$in": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": ['test', 'pre', 'online', 'deprecated']
+                    },
+                    "minItems": 1
+                },
+                "$notIn": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": ['test', 'pre', 'online', 'deprecated']
+                    },
+                    "minItems": 1
+                },
+                "$not": {
+                    "type": "string",
+                    "items": {
+                        "type": "string",
+                        "enum": ['test', 'pre', 'online', 'deprecated']
+                    },
+                    "minItems": 1
+                }
+            },
+            "minProperties": 1,
+            "maxProperties": 1,
+            "additionalProperties": false
+        }
+    },
+    {
+        task: "response-self",
+        version: "0.0.1",
+        env: ['dev', 'test', 'produce', 'release'],
+        description: "请求service资源的api支持的URL参数",
+        direction: "ref",
+        labels: ["api"],
+        schema: {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "response-self",
+            "type": "object",
+            "required": ["src", "url", "description"],
+            "properties": {
+                "src": {
+                    "type": "string",
+                    "description": "完整的请求路径"
+                },
+                "url": {
+                    "type": "string",
+                    "description": "去掉schema和host信息的请求路径"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "描述文本"
+                },
+                "query": {
+                    "type": "object",
+                    "description": "请求对象"
                 }
             }
         }
-    }
+    },
+    {
+        task: "service-list-get",
+        version: "0.0.1",
+        env: ['dev', 'test', 'produce', 'release'],
+        description: "请求service资源的api获取的数据模式",
+        direction: "response",
+        labels: ["api"],
+        schema: {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title":"service-list-get-response",
+            "type": "object",
+            "properties": {
+                "self":{
+                    "$ref":"http://localhost:5000/api/service/service_manager/test-0.0.1/?task=response-self&version=0.0.1&direction=ref"
+                },
+                ""
+            }
+        }
+    },
 ]
 
-export { defaultService, defaultSchemas }
+export { selfService, selfSchemas }

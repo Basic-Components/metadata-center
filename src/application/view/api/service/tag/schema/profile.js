@@ -35,9 +35,11 @@ export default {
         }
         
     },
+    //todo
     async delete(ctx) {
         ctx.throw(404)
     },
+    //todo
     async getMeta(ctx) {
         let serviceId = ctx.params.serviceId
         let task = ctx.params.task
@@ -69,6 +71,7 @@ export default {
             ctx.throw(500)
         }
     },
+    //todo
     async postValidate(ctx) {
         ctx.throw(404)
     },
