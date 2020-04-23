@@ -1,40 +1,19 @@
-# schema_manager
+# components_manager
 
-+ version: 0.0.1
-+ status: dev
-+ author: hsz
-+ email: 
-
-## Description
-
-simple tools
-
-keywords:['tools']
-
-## Feature
-
-+ Feature1
-+ Feature2
-
-## Example
-
-```python
+## Project setup
+```
+npm install
 ```
 
-## Install
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
 
-`python -m pip install schema_manager`
+### Compiles and minifies for production
+```
+npm run build
+```
 
-## Documentation
-
-Documentation on github page <>
-
-## TODO
-
-+ todo1
-+ todo2
-
-## Limitations
-
-+ limit1
-+ limit2
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
