@@ -3,6 +3,7 @@ package logger
 import (
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	logrus "github.com/sirupsen/logrus"
 )
 
@@ -48,6 +49,9 @@ func setLog(loglevel string, defaultField map[string]interface{}) *logrus.Entry 
 //Init 初始化默认的log对象
 func Init(loglevel string, defaultField map[string]interface{}) {
 	defaultlog = setLog(loglevel, defaultField)
+	if loglevel != "DEBUG" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 }
 
 //Trace 默认log打印Trace级别信息

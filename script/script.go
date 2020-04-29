@@ -1,53 +1,68 @@
 package script
 
 import (
-	"errors"
+	"github.com/Basic-Components/components_manager/errs"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Basic-Components/components_manager/logger"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
-// Config 程序的配置
-var Config = DefaultConfig
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-// InitConfig 初始化命令行传入的参数到配置,返回值为false表示要执行创建秘钥否则为启动服务
-func InitConfig() error {
-	log.SetFormatter(&log.JSONFormatter{})
+// Config 程序的配置
+var Config = ConfigType{}
+
+// Init 初始化命令行传入的参数到配置,返回值为false表示要执行创建秘钥否则为启动服务
+func Init() error {
+	config := DefaultConfig
 	defaultfileConfig, err := InitFileConfig()
 	if err != nil {
-		log.Warn("从默认路径文件初始化配置项错误")
+		log.Logger.Warn("从默认路径文件初始化配置项错误")
 	} else {
 		for k, v := range defaultfileConfig {
-			Config[k] = v
+			config[k] = v
 		}
 	}
 	envConfig, err := InitEnvConfig()
 	if err != nil {
-		log.WithFields(map[string]interface{}{
+		log.Logger.WithFields(map[string]interface{}{
 			"error": err,
 		}).Warn("从环境变量初始化配置项错误")
 	} else {
 		for k, v := range envConfig {
-			Config[k] = v
+			config[k] = v
 		}
 	}
 	flagConfig, err := InitFlagConfig()
 	if err != nil {
-		log.WithFields(map[string]interface{}{
+		log.Logger.WithFields(map[string]interface{}{
 			"error": err,
 		}).Warn("从命令行参数初始化配置项错误")
 	} else {
 		for k, v := range flagConfig {
-			Config[k] = v
+			config[k] = v
 		}
 	}
-	flag, result := VerifyConfig(Config)
+
+	ConfigJSON, err := json.Marshal(config)
+	if err != nil {
+		return err
+	}
+	configstruct := ConfigType{}
+	json.Unmarshal(ConfigJSON, &configstruct)
+	flag, result := VerifyConfig(configstruct)
 	if flag == true {
+		Config = configstruct
 		return nil
 	}
+	log.Logger.WithFields(map[string]interface{}{
+		"flag": flag,
+	}).Error("配置检验错误")
 	for _, err := range result.Errors() {
-		log.WithFields(map[string]interface{}{
+		log.Logger.WithFields(map[string]interface{}{
 			"error": err,
 		}).Error("配置检验错误")
 	}
-	return errors.New("配置文件参数错误")
+	return errs.ErrConfigParams
 }

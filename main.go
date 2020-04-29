@@ -1,36 +1,100 @@
-package main
+package main //import "github.com/Basic-Components/components_manager"
 
 import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"time"
 
 	log "github.com/Basic-Components/components_manager/logger"
-	script "github.com/Basic-Components/components_manager/script"
-	serv "github.com/Basic-Components/components_manager/serv"
+	"github.com/Basic-Components/components_manager/models"
+	"github.com/Basic-Components/components_manager/router"
+	"github.com/Basic-Components/components_manager/script"
 
-	conn "github.com/Basic-Components/components_manager/connects"
+	"github.com/Basic-Components/connectproxy/etcd3proxy"
+	"github.com/Basic-Components/connectproxy/pgproxy"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/go-pg/pg/v9"
+	ginlogrus "github.com/toorop/gin-logrus"
+	"go.etcd.io/etcd/clientv3"
 )
 
+func run(addr string, handler *gin.Engine) {
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: handler,
+	}
+
+	go func() {
+		// 服务连接
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal(map[string]interface{}{"error": err}, "listen error")
+			os.Exit(2)
+		}
+	}()
+	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Info(nil, "Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal(map[string]interface{}{"error": err}, "server shutdown error")
+		os.Exit(2)
+	}
+	log.Info(nil, "Server exiting")
+}
+
+type dbLogger struct{}
+
+func (d dbLogger) BeforeQuery(c context.Context, q *pg.QueryEvent) (context.Context, error) {
+	return c, nil
+}
+
+func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) error {
+	fmt.Println(q.FormattedQuery())
+	return nil
+}
 func main() {
-	config, _ := script.InitConfig()
-	address := config["address"].(string)
-	appname := config["app_name"].(string)
-	log.Init("INFO", map[string]interface{}{"app_name": appname})
-	log.Info(map[string]interface{}{"config": config}, "config init")
-	etcdAddresses := strings.Split(config["etcd_url"].(string), ",")
-	log.Debug(map[string]interface{}{"value": etcdAddresses}, "etcdAddresses")
-	err := conn.Etcd.Init(etcdAddresses, 3)
+	// 初始化配置
+	err := script.Init()
 	if err != nil {
-		log.Error(map[string]interface{}{"error": err}, "etcd init error")
-		return
-	} else {
-		log.Info(map[string]interface{}{"address": etcdAddresses}, "etcd init ok")
+		log.Logger.Fatalln("script init error ", err)
 	}
-	err = conn.DB.Init(config["db_url"], 10, 20, 5)
+	// 初始化log
+	log.Init(script.Config.LogLevel, map[string]interface{}{
+		"component_name": script.Config.ComponentName,
+		"service_name":   script.Config.ServiceName,
+	})
+	log.Info(map[string]interface{}{"config": script.Config}, "config inited")
+	// 初始化数据模型
+	models.Init()
+	log.Info(nil, "models inited")
+	// 初始化pg数据库
+	err = pgproxy.DB.InitFromURL(script.Config.PGURL)
 	if err != nil {
-		log.Error(map[string]interface{}{"error": err}, "db init error")
-		return
-	} else {
-		log.Info(map[string]interface{}{"address": config["db_url"]}, "db init ok")
+		log.Logger.Fatalln("pgproxy.DB.InitFromURL error ", err)
 	}
-	serv.RunServer(address)
+	log.Info(nil, "pgproxy.DB inited")
+	defer pgproxy.DB.Close()
+	// 初始化etcd3
+	etcdaddresses := strings.Split(script.Config.ETCDURL, ",")
+	err = etcd3proxy.Etcd.InitFromOptions(&clientv3.Config{Endpoints: etcdaddresses, DialTimeout: 5 * time.Second})
+	if err != nil {
+		log.Logger.Fatalln("etcd3proxy.Etcd.InitFromOptions error ", err)
+	}
+	defer etcd3proxy.Etcd.Close()
+	// 初始化gin的router
+	router.Router.Use(cors.Default())
+	router.Router.Use(ginlogrus.Logger(log.Logger), gin.Recovery())
+	router.Init()
+	// 启动服务
+	log.Info(map[string]interface{}{"address": script.Config.Address}, "servrt start")
+	run(script.Config.Address, router.Router)
 }

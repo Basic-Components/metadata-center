@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   postgres:
-    image: postgres:11.5
+    image: bitnine/agensgraph:v2.1.1
     logging:
       options:
         max-size: "10m"
@@ -12,4 +12,7 @@ services:
     #   - "./data/postgres-data:/var/lib/postgresql/data"
     environment:
       POSTGRES_PASSWORD: postgres
+    command: ["bin/bash"]
+    tty: true
+    stdin_open: true
 

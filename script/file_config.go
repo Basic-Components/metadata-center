@@ -5,8 +5,8 @@ import (
 )
 
 // SetFileConfig 从指定的配置文件中读取配置
-func SetFileConfig(fileName string, filePaths []string) (ConfigType, error) {
-	var fileConfig = ConfigType{}
+func SetFileConfig(fileName string, filePaths []string) (map[string]interface{}, error) {
+	var fileConfig = map[string]interface{}{}
 	FileConfigViper := viper.New()
 	FileConfigViper.SetConfigName(fileName)
 	for _, filePath := range filePaths {
@@ -22,9 +22,9 @@ func SetFileConfig(fileName string, filePaths []string) (ConfigType, error) {
 }
 
 // InitFileConfig 从默认的配置文件位置读取配置
-func InitFileConfig() (ConfigType, error) {
+func InitFileConfig() (map[string]interface{}, error) {
 	fileName := "config"
-	filePaths := []string{"/etc/compontents_manager/", "$HOME/.compontents_manager", "."}
+	filePaths := []string{"/etc/config_center/", "$HOME/.config_center", "."}
 	fileConfig, err := SetFileConfig(fileName, filePaths)
 	return fileConfig, err
 }
