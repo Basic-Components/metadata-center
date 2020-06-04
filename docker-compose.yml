@@ -1,0 +1,61 @@
+version: '3.6'
+services:
+  agensgraph:
+    image: bitnine/agensgraph:v2.1.1
+    #image: postgres:11.5
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    ports:
+      - 5434:5432
+    volumes:
+      - /data/agensgraph/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+    command: ["bin/bash"]
+    tty: true
+    stdin_open: true
+
+  etcd3-node1:
+    image: quay.io/coreos/etcd
+    ports:
+      - target: 12379
+        published: 12379
+        protocol: tcp
+        mode: host
+      - target: 12380
+        published: 12380
+        protocol: tcp
+        mode: host
+    volumes:
+      - /data/etcd3/node1/data:/etcd-data
+    environment:
+      - ETCDCTL_API=3
+    command:
+      - /usr/local/bin/etcd
+      - --data-dir=/etcd-data
+      - --name
+      - node1
+      - --initial-advertise-peer-urls
+      - http://172.16.1.105:12380
+      - --listen-peer-urls
+      - http://0.0.0.0:12380
+      - --advertise-client-urls
+      - http://172.16.1.105:12379
+      - --listen-client-urls
+      - http://0.0.0.0:12379
+      - --initial-cluster 
+      - node1=http://172.16.1.105:12380
+
+  business_config_center:
+    image: 47.98.42.103:8333/service/business_config_center:dev-0.0.1
+    ports:
+      - 13001:5000
+    environment:
+      CONFIG_CENTER_PG_URL: "postgres://agens:postgres@172.16.1.105:5434/test?sslmode=disable"
+      CONFIG_CENTER_ETCD_URL: "172.16.1.105:12379"
+    
+  curl:
+    image: curlimages/curl:7.70.0
+    command: "-L -v http://172.16.1.105:13001/api/sdk_init"

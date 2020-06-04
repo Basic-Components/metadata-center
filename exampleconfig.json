@@ -1,0 +1,9 @@
+{
+    "ADDRESS": "0.0.0.0:5000",
+    "COMPONENT_NAME": "config-center",
+    "COMPONENT_VERSION": "0.0.0",
+    "ETCD_URL": "localhost:12379",
+    "LOG_LEVEL": "INFO",
+    "PG_URL": "postgres://agens:postgres@localhost:5432/test?sslmode=disable",
+    "SERVICE_NAME": "test-config"
+}
