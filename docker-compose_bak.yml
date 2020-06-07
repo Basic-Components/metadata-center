@@ -2,6 +2,7 @@ version: '3.6'
 services:
   agensgraph:
     image: bitnine/agensgraph:v2.1.1
+    #image: postgres:11.5
     logging:
       options:
         max-size: "10m"
@@ -15,3 +16,12 @@ services:
     command: ["bin/bash"]
     tty: true
     stdin_open: true
+
+  business_config_center:
+    image: hsz1273327/component_manager:dev-0.0.1
+    ports:
+      - 13001:5000
+    environment:
+      CONFIG_CENTER_PG_URL: "postgres://agens:postgres@192.168.31.232:5432/test?sslmode=disable"
+      CONFIG_CENTER_ETCD_URL: "192.168.31.232:12379"
+    
