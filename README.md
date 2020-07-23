@@ -1,19 +1,39 @@
-# components_manager
+# metadata-center
 
-## Project setup
-```
-npm install
-```
+这个项目是用于做元数据管理的,主要包括如下几个方面的功能
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## 功能
 
-### Compiles and minifies for production
-```
-npm run build
-```
+1. 元数据的保存
+2. 元数据的版本维护
+3. 元数据校验数据
+4. 维护元数据间的关系
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 元数据的分类
+
+本项目将元数据分为如下几类:
+
+1. 表数据的元数据
+2. 服务的元数据
+3. 流数据的元数据
+4. 配置数据的元数据
+
+## 使用的工具
+
+1. 使用图数据库`agensgraph`用于存储数据
+2. 使用`timescaledb`用于保存实时数据
+3. 使用`grpc`提供接口和sdk
+4. 使用`vue 2`构造交互界面
+5. 使用python的`sanic`构造服务
+6. 使用`jsonschema`作为校验工具
+7. 使用`etcdv3`作为配置分发工具
+
+
+## 支持的数据源
+
+1. pg中的表
+2. http请求(json)
+3. redis中的流式数据(json)
+4. kafka中的流式数据(json)
+5. 配置文件(json)
+

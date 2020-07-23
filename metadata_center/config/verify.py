@@ -1,0 +1,34 @@
+from jsonschema import validate
+schema = {
+    "title": "config",
+    "description": "config verify",
+    "type": "object",
+    "properties": {
+        "SERVICE_NAME":{
+            "description": "服务名",
+            "type": "string"
+        },
+        "DEBUG": {
+            "description": "debug mode",
+            "type": "boolean"
+        }, "HOST": {
+            "description": "host name or ip",
+            "type": "string"
+        }, "PORT": {
+            "description": "listen to port",
+            "type": "integer"
+        }, "SECRET_KEY": {
+            "description": "SECRET_KEY for application",
+            "type": "string"
+        }
+    }
+}
+
+
+def config_schema(instance):
+    try:
+        validate(instance=instance, schema=schema)
+    except:
+        raise
+    else:
+        return instance
