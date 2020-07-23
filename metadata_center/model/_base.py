@@ -1,8 +1,7 @@
 """orm的基类和基本工具
 """
-
 from typing import Type
-from peewee import Model, Proxy
+from peewee import Proxy,Model
 db = Proxy()
 Tables = {}
 

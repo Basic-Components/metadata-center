@@ -34,8 +34,6 @@ def _load_conf_from_env():
         result["HOST"] = os.getenv('HOST')
     if os.getenv('DEBUG'):
         result["DEBUG"] = os.getenv('DEBUG')
-    if os.getenv('SERVER_CONFIG_SERVER'):
-        result["SERVER_CONFIG_SERVER"] = os.getenv('SERVER_CONFIG_SERVER')
     return config_schema(result)
 
 
@@ -57,5 +55,3 @@ def load_conf(args):
     config.update(**_load_conf_from_args(args))
     config.update(**_load_conf_from_env())
     return config
-
-

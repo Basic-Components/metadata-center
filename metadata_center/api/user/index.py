@@ -1,15 +1,21 @@
-from flask import jsonify, current_app, request
-from flask.views import MethodView
+from sanic.response import json
+from sanic.views import HTTPMethodView
+
 from model import get_table
 from data_schema import get_schema
+from ..core import restapi
+
+
 User = get_table("User")
 User_Schema = get_schema("user")
 
 
-class UserIndexAPI(MethodView):
+@restapi.register("/user")
+class UserIndexAPI(HTTPMethodView):
 
-    def get(self):
-        count = User.select().count()
+    async def get(self, request):
+        count_query = User.select()
+        count = await request.app.db_manager.count(count_query)
         result = {
             "description": "测试api,User总览",
             "user-count": count,
@@ -37,26 +43,23 @@ class UserIndexAPI(MethodView):
             ]
         }
 
-        return jsonify(result)
+        return json(result,ensure_ascii=False)
 
-    def post(self):
+    async def post(self, request):
         insert = request.json
-
         try:
             User_Schema(insert)
         except Exception as e:
-            return jsonify({
+            return json({
                 "msg": "参数错误",
                 "error": str(e)
-            }), 401
+            },ensure_ascii=False), 401
         else:
-            uid = User.insert(insert).execute()
-            return jsonify({
+            uid = await request.app.db_manager.create(User,**insert)
+            return json({
                 "msg": "插入成功",
                 "uid": uid
-            })
+            },ensure_ascii=False)
 
 
-user_index_view = UserIndexAPI.as_view('user_index_api')
-
-__all__ = ["user_index_view"]
+__all__ = ["UserIndexAPI"]

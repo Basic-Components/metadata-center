@@ -16,3 +16,9 @@ services:
     tty: true
     stdin_open: true
 
+  webapp:
+    build: .
+    image: metadata_center:dev
+    ports:
+      - "5000:5000"
+    command: "python metadata_center run"

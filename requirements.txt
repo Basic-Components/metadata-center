@@ -1,0 +1,6 @@
+sanic
+jsonschema
+peewee
+peewee_async
+aiopg
+psycopg2-binary

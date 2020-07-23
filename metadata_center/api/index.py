@@ -1,10 +1,12 @@
-from flask import jsonify, current_app, request
-from flask.views import MethodView
+from sanic.response import json
+from sanic.views import HTTPMethodView
+from .core import restapi
 
 
-class IndexAPI(MethodView):
+@restapi.register("/")
+class IndexAPI(HTTPMethodView):
 
-    def get(self):
+    async def get(self, request):
         result = {
             "description": "测试api",
             "links": [
@@ -15,9 +17,7 @@ class IndexAPI(MethodView):
                 }
             ]
         }
-        return jsonify(result,)
+        return json(result,ensure_ascii=False)
 
 
-index_view = IndexAPI.as_view('index_api')
-
-__all__ = ["index_view"]
+__all__ = ["IndexAPI"]

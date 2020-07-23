@@ -4,10 +4,6 @@ schema = {
     "description": "config verify",
     "type": "object",
     "properties": {
-        "SERVICE_NAME":{
-            "description": "服务名",
-            "type": "string"
-        },
         "DEBUG": {
             "description": "debug mode",
             "type": "boolean"

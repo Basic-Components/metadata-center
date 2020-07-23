@@ -1,2 +1,1 @@
-from .utils import load_conf,CONFIG
-
+from .utils import load_conf

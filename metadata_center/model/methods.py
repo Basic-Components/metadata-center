@@ -2,8 +2,10 @@
 
 避免让外部直接访问定义的对象,以此来进行解耦.
 """
-import contextlib
+import asyncio
 from typing import Type
+import peewee_async
+import peewee_asyncext
 from playhouse.db_url import connect
 from .user import User
 from ._base import (
@@ -13,15 +15,20 @@ from ._base import (
 )
 
 
-def bind_db(dburl: str):
+def bind_db(dburl: str, loop: asyncio.BaseEventLoop =None):
     """指定数据库的url初始化代理对象并创建表.
 
     Args:
         dburl (str): 支持peewee所支持的数据库url写法
+        loop (asyncio.BaseEventLoop, optional): Defaults to None. 指定事件循环
     """
+
     database = connect(dburl)
     db.initialize(database)
+    loop = loop or asyncio.get_event_loop()
     db.create_tables(list(Tables.values()), safe=True)
+    db_manager = peewee_async.Manager(db)
+    return db_manager
 
 
 def drop_tables():
@@ -69,18 +76,8 @@ def moke_data():
             "name": "Xu"
         },
     ]
-    User.insert_many(data_source).execute()
+    iq = User.insert_many(data_source)
+    iq.execute()
 
 
-@contextlib.contextmanager
-def query():
-    """确保对数据库的请求有连接可用,并且在使用完后关闭连接的上下文管理器."""
-    try:
-        db.connect()
-    except:
-        pass
-    yield db
-    db.close()
-
-
-__all__ = ["drop_tables", "bind_db", "get_table", "query"]
+__all__ = ["drop_tables", "bind_db", "get_table", "moke_data"]

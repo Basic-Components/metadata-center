@@ -1,14 +1,25 @@
-"""view蓝图模组.
+"""restfulapi蓝图模组.
 
 ## 使用方法
 
-在目录下以`echo.py`为样板构造基于method的view,再在`core.py`中import进来,使用`.add_url_rule`将view注册到蓝图
+core 模块中import进默认的实例`restapi`
+使用rergister(url)来将view注册至对象中
+```python
+@restapi.register("/")
+class IndexAPI(HTTPMethodView):
+    pass
+```
+同时注意在`__init__.py`import 进写好的class
 
-## 注册方法
+## 注册到app的方法
 
 ```python
-from bpxxx import xxx
-app.register_blueprint(xxx)
+from api import restapi
+restapi.init_app(app)
 ```
+
+注意:json需要在后面加上`ensure_ascii=False`来将unicode转换
 """
 from .core import restapi
+from .index import *
+from .user import *

@@ -1,41 +1,52 @@
-from flask import jsonify, current_app, request
-from flask.views import MethodView
+from sanic.response import json
+from sanic.views import HTTPMethodView
 from model import get_table
 from data_schema import get_schema
+from ..core import restapi
 User = get_table("User")
 User_Schema = get_schema("user")
 
 
-class UserAPI(MethodView):
+@restapi.register('/user/<uid:int>')
+class UserAPI(HTTPMethodView):
 
-    def get(self, uid):
+    async def get(self, request, uid):
         try:
-            u = User.get(User.id == uid)
+            u = await request.app.db_manager.get(User, id=uid)
         except User.DoesNotExist as dn:
-            return jsonify({
+            return json({
                 "msg": "未找到用户",
-            }), 401
+            }, status=401, ensure_ascii=False)
 
         except Exception as e:
-            return jsonify({
+            return json({
                 "msg": "执行错误",
-            }), 500
+            }, status=500, ensure_ascii=False)
         else:
-            return jsonify(u.to_dict())
+            if u:
+                return json(u.to_dict(), ensure_ascii=False)
+            else:
+                return json({
+                    "msg": "未找到用户",
+                }, status=401, ensure_ascii=False)
 
-    def put(self, uid):
+    async def put(self, request, uid):
         try:
-            u = User.get(User.id == uid)
+            u = await request.app.db_manager.get(User, id=uid)
         except User.DoesNotExist as dn:
-            return jsonify({
+            return json({
                 "msg": "未找到用户",
-            }), 401
+            }, status=401, ensure_ascii=False)
 
         except Exception as e:
-            return jsonify({
+            return json({
                 "msg": "执行错误",
-            }), 500
+            }, status=500, ensure_ascii=False)
         else:
+            if not u:
+                return json({
+                    "msg": "未找到用户",
+                }, status=401, ensure_ascii=False)
             insert = request.json
             u_dict = u.to_dict()
             for k, v in insert.items():
@@ -43,34 +54,37 @@ class UserAPI(MethodView):
                     if v != u_dict[k]:
                         setattr(u, k, v)
                 except Exception as e:
-                    return jsonify({
+                    return json({
                         "msg": "参数错误",
                         "error": str(e)
-                    }), 401
-                u.save()
-                return jsonify({
+                    }, status=401, ensure_ascii=False)
+                await request.app.db_manager.update(u)
+                return json({
                     "msg": "更新成功"
-                })
+                }, ensure_ascii=False)
 
-    def delete(self, uid):
+    async def delete(self, request, uid):
         try:
-            u = User.get(User.id == uid)
+            u = await request.app.db_manager.get(User, id=uid)
         except User.DoesNotExist as dn:
-            return jsonify({
+            return json({
                 "msg": "未找到用户",
-            }), 401
+            }, status=401, ensure_ascii=False)
 
         except Exception as e:
-            return jsonify({
+            return json({
                 "msg": "执行错误",
-            }), 500
+                "error": str(type(e))
+            }, status=500, ensure_ascii=False)
         else:
-            u.delete_instance()
-            return jsonify({
+            if not u:
+                return json({
+                    "msg": "未找到用户",
+                }, status=401, ensure_ascii=False)
+            await request.app.db_manager.delete(u)
+            return json({
                 "msg": "删除成功",
-            })
+            }, ensure_ascii=False)
 
 
-user_view = UserAPI.as_view('user_api')
-
-__all__ = ["user_view"]
+__all__ = ["UserAPI"]

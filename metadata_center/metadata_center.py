@@ -1,29 +1,32 @@
-"""flask默认的app构造组件.
+"""sanic默认的app构造组件.
 
 组件名字会被改为项目名.
 
 注册模块组件使用`xxx.init_app(app)`;
 
-注册蓝图组件使用`app.register_blueprint(xxx)`
-
-使用数据库组件则使用`bind_db(app.config["DBURL"])`的形式
+使用数据库组件放在hooks模块中在启动项目时挂载
 """
-from flask import Flask, url_for
+from sanic import Sanic
 from api import restapi
-from server import run_aplication
-from log import set_log
-from logger import log
-from model import bind_db
+from hooks import hooks
+from exception import excep
+from log import (
+    LOGGING_CONFIG_JSON,
+    set_mail_log
+)
 
 
 def init_app(config):
-    app = Flask(__name__)
+    log_config = None
+    if config["SET_LOG_FMT"] == "json":
+        log_config = LOGGING_CONFIG_JSON
+    app = Sanic(config["NAME"], log_config=log_config)
     app.config.update(
-        **config
+        config
     )
-    run_aplication.init_app(app)
-    set_log.init_app(app)
-    log.initialize(config["SERVICE_NAME"])
-    bind_db(app.config["DBURL"])
-    app.register_blueprint(restapi)
+    if app.config.SET_LOG_MAIL_LOG is True:
+        set_mail_log(app)
+    restapi.init_app(app)
+    hooks.init_app(app)
+    excep.init_app(app)
     return app
