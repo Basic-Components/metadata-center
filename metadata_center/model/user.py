@@ -11,6 +11,8 @@ from peewee import (
     AutoField,
     BooleanField
 )
+
+from const import SERVICE_NAME
 from ._base import (
     BaseModel,
     register
@@ -41,28 +43,34 @@ class User(BaseModel):
         msg = result if result is True else False
         return msg
 
-    def get_google_auth_qrcode(self):
-        data = pyotp.totp.TOTP(self.gtoken).provisioning_uri(self.name, issuer_name="IAM MFA Code")
+    def new_google_auth_qrcode(self)->str:
+        """创建googleauth使用的二维码.
+
+        Returns:
+            str: 二维码的图片base64字符串
+        """
+        data = pyotp.totp.TOTP(self.gtoken).provisioning_uri(self.name, issuer_name=SERVICE_NAME)
         qr = QRCode(
-            version=1,
-            error_correction=constants.ERROR_CORRECT_L,
-            box_size=6,
-            border=4, )
-        try:
-            qr.add_data(data)
-            qr.make(fit=True)
-            img = qr.make_image()
-            output_buffer = BytesIO()
-            img.save(output_buffer, format='png')
-            byte_data = output_buffer.getvalue()
-            base64_str = base64.b64encode(byte_data)
-        except Exception as e:
-            raise e
-        else:
-            return f"data:image/png;base64,{base64_str}"
+        version=1,
+        error_correction=constants.ERROR_CORRECT_L,
+        box_size=6,
+        border=4, )
+
+        qr.add_data(data)
+        qr.make(fit=True)
+        img = qr.make_image()
+        output_buffer = BytesIO()
+        img.save(output_buffer, format='png')
+        byte_data = output_buffer.getvalue()
+        base64_str = base64.b64encode(byte_data)
+        return f"data:image/png;base64,{base64_str}"
+
     def new_secondary_verification_token(self):
         if self.gtoken == "":
             self.gtoken =  pyotp.random_base32(64)
+        else:
+            raise 
+
 
     def to_dict(self):
         return {

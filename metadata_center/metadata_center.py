@@ -10,6 +10,7 @@ from sanic import Sanic
 from api import restapi
 from hooks import hooks
 from exception import excep
+from const import SERVICE_NAME
 from log import (
     LOGGING_CONFIG_JSON,
     set_mail_log
@@ -20,7 +21,7 @@ def init_app(config):
     log_config = None
     if config["SET_LOG_FMT"] == "json":
         log_config = LOGGING_CONFIG_JSON
-    app = Sanic(config["NAME"], log_config=log_config)
+    app = Sanic(SERVICE_NAME, log_config=log_config)
     app.config.update(
         config
     )

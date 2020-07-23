@@ -11,11 +11,13 @@ def run(args):
             host=app.config.HOST,
             port=app.config.PORT,
             worker=app.config.WORKER,
-            protocol = WebSocketProtocol
+            protocol = WebSocketProtocol,
+            debug=False, access_log=False
         )
     else:
         app.run(
             host=app.config.HOST,
             port=app.config.PORT,
-            worker=app.config.WORKER
+            worker=app.config.WORKER,
+            debug=False, access_log=False
         )

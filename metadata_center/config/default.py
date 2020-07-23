@@ -1,6 +1,5 @@
 from pathlib import Path
 DEFAULT_SETTING = {
-    "NAME": "metadata_center",
     "ACCESS_LOG": True,
     'DEBUG': True,
     'HOST': '0.0.0.0',
